@@ -1,15 +1,17 @@
 const db = require('./db');
+const { SESSION_COOKIE, hashToken } = require('./session');
 
 const requireAuth = async (req, res, next) => {
     try{
-        const sessionID = req.cookies.sessionID;
-        if(!sessionId){
+        const sessionToken = req.cookies[SESSION_COOKIE];
+        if(!sessionToken){
             return res.status(401).json({error: "Unauthorized: No Session Found."});
         }
 
+        const sessionId = hashToken(sessionToken);
         const sessionQuery = `SELECT user_id FROM sessions WHERE id = $1 AND expires_at > NOW();`;
 
-        const sessionResult = await db.query(sessionQuery, sessionID);
+        const sessionResult = await db.query(sessionQuery, [sessionId]);
 
         if(sessionResult.rowCount == 0){
             return res.status(401).json({error: "Unauthorized: No Session Found."});

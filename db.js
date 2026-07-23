@@ -13,6 +13,14 @@ const pool = new Pool({
     connectionTimeoutMillis: 2000,
 });
 
+// A pooled client can emit 'error' while sitting idle (e.g. the database
+// restarts or drops the connection). Without a listener Node treats this as an
+// unhandled 'error' event and crashes the whole process, so we log it and let
+// the pool recycle the bad client instead.
+pool.on('error', (err) => {
+    console.error('Unexpected error on idle database client:', err);
+});
+
 module.exports = {
     query : (queryString, params) => pool.query(queryString, params),
 }
