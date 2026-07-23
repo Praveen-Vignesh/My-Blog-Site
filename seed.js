@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 const hashPassword = async (rawPassword) => {
-    const saltRound = 12;
+    const saltRounds = 12;
 
     try{
         return await bcrypt.hash(rawPassword, saltRounds);
